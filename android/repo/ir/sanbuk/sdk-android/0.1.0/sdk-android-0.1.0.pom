@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The Sanbuk SDK is not on Maven Central, and the aar is self-contained by
+  design. But AGP refuses a local .aar file dependency inside a library module,
+  so the binary is offered as a one-artifact repository instead of a file. No
+  dependencies are declared because it genuinely has none.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ir.sanbuk</groupId>
+  <artifactId>sdk-android</artifactId>
+  <version>0.1.0</version>
+  <packaging>aar</packaging>
+  <name>Sanbuk Android SDK</name>
+  <url>https://github.com/sanbuk-dev/sanbuk-android</url>
+</project>

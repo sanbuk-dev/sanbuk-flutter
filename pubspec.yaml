@@ -1,0 +1,27 @@
+name: sanbuk_flutter
+description: "Sanbuk publisher SDK for Flutter — show Sanbuk ads inside your app."
+version: 0.1.0
+homepage: https://github.com/sanbuk-dev/sanbuk-flutter
+
+environment:
+  sdk: ^3.12.0
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: ir.sanbuk.sanbuk_flutter
+        pluginClass: SanbukFlutterPlugin
+      # iOS lands when the native iOS SDK grows its UI layer; SanbukCore is
+      # already written and tested, the renderer is not. A platform declared
+      # before it works is a crash on somebody's iPhone.

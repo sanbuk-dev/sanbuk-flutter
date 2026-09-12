@@ -43,10 +43,18 @@ class SanbukFlutterPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
      *
      * A live ad cannot cross the channel — it has a session behind it and has
      * to be able to report its own impression — so Dart holds an int and the
-     * object stays here. Entries are dropped once the ad has been acted on,
-     * because a map that only grows is a leak with a slow fuse.
+     * object stays here, capped, because a map that only grows is a leak with a
+     * slow fuse.
      */
-    private val ads = HashMap<Int, SanbukAd>()
+    private val ads = object : LinkedHashMap<Int, SanbukAd>(16, 0.75f, false) {
+        // Ads outlive their own impression, so nothing removes them one by one
+        // and the map would grow for as long as the app runs. A feed that loads
+        // an ad every few rows reaches thousands in a session. The oldest goes
+        // at the cap: by then it is off screen and out of reach of any click.
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Int, SanbukAd>) =
+            size > MAX_LIVE_ADS
+    }
+
     private val fullscreens = HashMap<Int, SanbukFullscreen>()
     private val handles = AtomicInteger(0)
 
@@ -101,8 +109,11 @@ class SanbukFlutterPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
             }
 
             "recordImpression" -> {
-                // Removed as it is used: one drawn ad is one view, and holding
-                // it afterwards would keep a session alive for nothing.
+                // Kept, not removed. An ad is reported when it appears and
+                // clicked afterwards, so dropping it here would silently
+                // swallow every click — the publisher does the work and earns
+                // nothing. Counting twice is already impossible: the native ad
+                // guards it, and so does the Dart wrapper.
                 ads[call.argument<Int>("adId")]?.recordImpression()
                 result.success(null)
             }
@@ -183,6 +194,7 @@ class SanbukFlutterPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
     }
 
     private companion object {
+        const val MAX_LIVE_ADS = 64
         const val CHANNEL = "ir.sanbuk/sdk"
         const val VIEW_TYPE = "ir.sanbuk/adView"
     }
